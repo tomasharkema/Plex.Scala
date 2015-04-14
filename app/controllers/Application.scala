@@ -8,7 +8,7 @@ object Application extends Controller {
 
   def index = Action {
 
-    val movies = API.getMovies.map(m => m.movieName).reduce(_ + ",\n" + _)
+    val movies = API.getMovies
 
     Ok(views.html.index(movies))
   }

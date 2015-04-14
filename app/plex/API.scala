@@ -1,6 +1,6 @@
 package plex
 
-import java.net.URL
+import java.net.{URLEncoder, URL}
 
 import scala.xml._
 import scalaj.http.{HttpRequest, HttpResponse, Http}
@@ -9,11 +9,13 @@ import scalaj.http.{HttpRequest, HttpResponse, Http}
  * Created by tomas on 12-04-15.
  */
 object API {
-  private def host = "192.168.0.100"
-  //private def host = "local.tomasharkema.nl"
+  //private def host = "192.168.0.100"
+  private def host = "local.tomasharkema.nl"
   private def port = 32400
 
-  private def endpoint(path: String) = new URL("http", host, port, path).toString
+  def endpoint:String => String = new URL("http", host, port, _).toString
+
+  def proxy(path: String) = "/proxy?url=" + URLEncoder.encode(path, "UTF-8")
 
   var token = ""
 
@@ -35,14 +37,14 @@ object API {
 
   private def authenticate(path: String, cl: (String) => (HttpRequest)): HttpRequest = {
     // TODO: n.encode64(n.toUtf8(a.username + ":" + a.password));
+    val bearer = "dGV1bWFhdXNzOmZsZWlzbWFubkgwIT8="
     val req = plexRequest("https://plex.tv/users/sign_in.xml")
       .method("POST")
       .header("Authorization", "Basic " + bearer)
       .asString
 
     val xml = parse(req)
-    val authToken = xml \ "authentication-token"
-    token = authToken.text
+    token = (xml \ "authentication-token").text
 
     cl(path)
   }
@@ -59,6 +61,7 @@ object API {
     } else if (res.is4xx) {
       authenticate(path, req).asString
     } else {
+      // handle other than 2xx error
       res
     }
   }
@@ -71,7 +74,7 @@ object API {
     val movies = xml \\ "Video"
 
     movies.map { el =>
-      new Movie((el \ "@title").text)
+      new Movie(el)
     }
   }
 

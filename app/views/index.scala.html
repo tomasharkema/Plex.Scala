@@ -1,5 +1,7 @@
-@(message: String)
+@(movies: Seq[plex.Movie])
 
 @main("Welcome to Play") {
-    @message
+    @movies.map { movie =>
+      <img src="@movie.artUrl"> @movie.name<br>
+    }
 }
