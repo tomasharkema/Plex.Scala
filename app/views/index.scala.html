@@ -1,7 +1,10 @@
 @(movies: Seq[plex.Movie])
 
 @main("Welcome to Play") {
+
+    <h1>Movies</h1>
+
     @movies.map { movie =>
-      <img src="@movie.artUrl"> @movie.name<br>
+      <img src="@movie.thumbUrl" width="100px"> @movie.title<br>
     }
 }

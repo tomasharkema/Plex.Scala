@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tomasharkema/Plex.Scala.svg?branch=master)](https://travis-ci.org/tomasharkema/Plex.Scala)
+
 # Plex.Scala
 Plex implementation in Scala
 

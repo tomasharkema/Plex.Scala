@@ -17,6 +17,8 @@ object API {
 
   def proxy(path: String) = "/proxy?url=" + URLEncoder.encode(path, "UTF-8")
 
+  def transcodeUrl(path: String, transcodeType:String) = "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8")
+
   var token = ""
 
   private def plexRequest(path: String) = Http(path)
@@ -49,26 +51,25 @@ object API {
     cl(path)
   }
 
-  private def request(path: String, requestClosure: (HttpRequest) => (HttpRequest)): HttpResponse[String] = {
-    val req = (path: String) => {
-      requestClosure(httpRequest(path, token))
-    }
+  def request[T](path: String, requestClosure: (HttpRequest) => (HttpRequest), as:(HttpRequest) => (HttpResponse[T])): HttpResponse[T] = {
+    val req = (path: String) => requestClosure(httpRequest(path, token))
 
-    val res = req(path).asString
+    val res = as(req(path))
 
     if (res.is2xx) {
       res
     } else if (res.is4xx) {
-      authenticate(path, req).asString
+      as(authenticate(path, req))
     } else {
       // handle other than 2xx error
       res
     }
   }
 
+  def defaultAuthenticated(path: String) = httpRequest(path, token)
+
   def getMovies: Seq[Movie] = {
-    println("getMovies")
-    val moviesReq = request("/library/sections/1/all", (req: HttpRequest) => req.header("a", "b"))
+    val moviesReq = request("/library/sections/1/all", (req: HttpRequest) => req.header("a", "b"), _.asString)
     val xml = parse(moviesReq)
 
     val movies = xml \\ "Video"
