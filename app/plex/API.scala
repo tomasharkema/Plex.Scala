@@ -39,7 +39,7 @@ object API {
 
   private def authenticate(path: String, cl: (String) => (HttpRequest)): HttpRequest = {
     // TODO: n.encode64(n.toUtf8(a.username + ":" + a.password));
-    val bearer = "dGV1bWFhdXNzOmZsZWlzbWFubkgwIT8="
+   
     val req = plexRequest("https://plex.tv/users/sign_in.xml")
       .method("POST")
       .header("Authorization", "Basic " + bearer)
