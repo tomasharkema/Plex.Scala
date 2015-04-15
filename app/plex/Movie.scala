@@ -11,7 +11,7 @@ case class Movie(title: String, thumb: String) {
   def this(el: Node) = this((el \ "@title").text, (el \ "@thumb").text)
 
   // getters
-  def thumbUrl = API.proxy(API.transcodeUrl(thumb, "photo"))
+  def thumbUrl(token: String) = API.proxy(API.transcodeUrl(thumb, token, "photo"))
 
   // overrides
   override def toString = title

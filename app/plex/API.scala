@@ -2,6 +2,9 @@ package plex
 
 import java.net.{URLEncoder, URL}
 
+import model.Auth
+
+import scala.util.Try
 import scala.xml._
 import scalaj.http.{HttpRequest, HttpResponse, Http}
 
@@ -17,9 +20,7 @@ object API {
 
   def proxy(path: String) = "/proxy?url=" + URLEncoder.encode(path, "UTF-8")
 
-  def transcodeUrl(path: String, transcodeType:String) = "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8")
-
-  var token = ""
+  def transcodeUrl(path: String, token:String, transcodeType:String) = "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8")
 
   private def plexRequest(path: String) = Http(path)
     .header("X-Plex-Client-Identifier", "f4x08gwxi3a6ecdi")
@@ -39,19 +40,30 @@ object API {
 
   private def authenticate(path: String, cl: (String) => (HttpRequest)): HttpRequest = {
     // TODO: n.encode64(n.toUtf8(a.username + ":" + a.password));
-   
+    val req = plexRequest("https://plex.tv/users/sign_in.xml")
+      .method("POST")
+      .header("Authorization", "Basic " + "")
+      .asString
+
+    val xml = parse(req)
+    //token = (xml \ "authentication-token").text
+
+    cl(path)
+  }
+
+  def authentication(bearer:String): Option[String] = {
     val req = plexRequest("https://plex.tv/users/sign_in.xml")
       .method("POST")
       .header("Authorization", "Basic " + bearer)
       .asString
 
-    val xml = parse(req)
-    token = (xml \ "authentication-token").text
-
-    cl(path)
+    parse(req) \ "authentication-token" match {
+      case <authentication-token>{value}</authentication-token> => Some(value.text)
+      case _ => None: Option[String]
+    }
   }
 
-  def request[T](path: String, requestClosure: (HttpRequest) => (HttpRequest), as:(HttpRequest) => (HttpResponse[T])): HttpResponse[T] = {
+  def request[T](path: String, token:String, requestClosure: (HttpRequest) => (HttpRequest), as:(HttpRequest) => (HttpResponse[T])): HttpResponse[T] = {
     val req = (path: String) => requestClosure(httpRequest(path, token))
 
     val res = as(req(path))
@@ -66,10 +78,10 @@ object API {
     }
   }
 
-  def defaultAuthenticated(path: String) = httpRequest(path, token)
+  def defaultAuthenticated(path: String, token:String) = httpRequest(path, token)
 
-  def getMovies: Seq[Movie] = {
-    val moviesReq = request("/library/sections/1/all", (req: HttpRequest) => req.header("a", "b"), _.asString)
+  def getMovies(token:String): Seq[Movie] = {
+    val moviesReq = request("/library/sections/1/all", token, (req: HttpRequest) => req.header("a", "b"), _.asString)
     val xml = parse(moviesReq)
 
     val movies = xml \\ "Video"

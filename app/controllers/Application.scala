@@ -1,15 +1,20 @@
 package controllers
 
+import model.Auth
 import play.api.mvc._
 import plex.API
+import security.Secured
 
-object Application extends Controller {
+object Application extends Controller with Secured {
 
-  def index = Action {
+  def index = withAuth { token => implicit request =>
 
-    val movies = API.getMovies
+    val token = request.cookies.get("token").orNull.value
+    val bearer = request.cookies.get("bearer").orNull.value
 
-    Ok(views.html.index(movies))
+    val movies = API.getMovies(token)
+
+    Ok(views.html.index(movies, token))
   }
 
 }

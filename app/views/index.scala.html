@@ -1,10 +1,10 @@
-@(movies: Seq[plex.Movie])
+@(movies: Seq[plex.Movie], token: String)
 
 @main("Welcome to Play") {
 
     <h1>Movies</h1>
 
     @movies.map { movie =>
-      <img src="@movie.thumbUrl" width="100px"> @movie.title<br>
+      <img src="@movie.thumbUrl(token)" width="100px"> @movie.title<br>
     }
 }

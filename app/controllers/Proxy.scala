@@ -2,19 +2,22 @@ package controllers
 
 import play.api.mvc._
 import plex.API
+import security.Secured
 
-/**
- * Created by tomas on 14-04-15.
- */
-object Proxy extends Controller {
-  def proxy = Action { implicit request =>
+object Proxy extends Controller with Secured {
+  def proxy = withAuth { token => implicit request =>
     request.getQueryString("url") match {
       case Some(url) =>
         println("~~~~" + url)
-        println(API.defaultAuthenticated(url).asString)
-        Ok(API.request(url, _.header("", ""), _.asBytes).body).as("image/jpeg")
+
+
+        routes.Login.login()
+
+
+        println(API.defaultAuthenticated(url, token).asString)
+        Ok(API.request(url, token, _.header("", ""), _.asBytes).body).as("image/jpeg")
       case None =>
-        Ok("Error")
+        NotFound
     }
   }
 }
