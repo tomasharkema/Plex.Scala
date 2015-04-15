@@ -18,7 +18,7 @@ class IntegrationSpec extends Specification {
 
       browser.goTo("http://localhost:" + port)
 
-      browser.pageSource must contain("Movies")
+      browser.pageSource must contain("<html>")
     }
   }
 }

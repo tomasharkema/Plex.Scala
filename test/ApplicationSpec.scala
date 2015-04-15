@@ -19,12 +19,12 @@ class ApplicationSpec extends Specification {
       route(FakeRequest(GET, "/boum")) must beNone
     }
 
-    "render the index page" in new WithApplication{
+    "should redirect to login page" in new WithApplication{
       val home = route(FakeRequest(GET, "/")).get
 
-      status(home) must equalTo(OK)
+      status(home) must equalTo(SEE_OTHER)
       contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("<h1>Movies</h1>")
+      contentAsString(home) must contain ("login")
     }
   }
 }

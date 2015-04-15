@@ -7,6 +7,6 @@ import play.api.mvc._
  */
 object Login extends Controller {
   def login = Action {
-    Ok("login")
+    Ok(views.html.login())
   }
 }

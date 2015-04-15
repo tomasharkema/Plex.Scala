@@ -16,7 +16,7 @@ trait Secured {
   def token(request: RequestHeader) = request.session.get(Security.username)
   def bearer(request: RequestHeader) = request.cookies.get("bearer").orNull.value
 
-  def onUnauthorized(request: RequestHeader) = Results.Redirect("/login")
+  def onUnauthorized(request: RequestHeader) = Results.Redirect(controllers.routes.Login.login())
 
   def withAuth(f: => String => Request[AnyContent] => Result) = {
     Security.Authenticated(token, onUnauthorized) { user =>
