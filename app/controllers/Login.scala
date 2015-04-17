@@ -23,7 +23,6 @@ object Login extends Controller {
 
   def check(user: User): Option[String] = {
     def bearer = BaseEncoding.base64().encode((user.username + ":" + user.password).getBytes(Charsets.UTF_8))
-    println(bearer)
     API.authentication(bearer)
   }
 

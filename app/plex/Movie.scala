@@ -2,6 +2,7 @@ package plex
 
 import scala.xml._
 import com.netaporter.uri.dsl._
+import utils.StringUtils._
 
 /**
  * Created by tomas on 12-04-15.
@@ -11,15 +12,19 @@ case class Movie(title: String,
                  thumb: String,
                  key: String,
                  media:Seq[Media],
-                 description: String) {
-
+                 description: String,
+                 offset:Option[Int]) {
   // getters
   def thumbUrl(token: String) = API.transcodeUrl(thumb, token, "photo")
   def artUrl(token: String) = API.endpoint + art & ("X-Plex-Token" -> token)
 
   def detailUrl = controllers.routes.Application.movie(key)
 
-  def getStream(token: String) = API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)
+  def getStream(token: String) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
+    (offset match {
+      case Some(o) => "#t=" + o/1000
+      case None => ""
+    })
 
   // overrides
   override def toString = title
@@ -37,7 +42,8 @@ object Movie {
       (el \ "@thumb").text,
       (el \ "@key").text.split("/").last,
       (el \ "Media").map(Media.parseNode),
-      (el \ "@summary").text
+      (el \ "@summary").text,
+      (el \ "@viewOffset").text.toIntOpt
     )
   }
 

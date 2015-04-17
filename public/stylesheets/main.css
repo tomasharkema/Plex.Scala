@@ -91,4 +91,6 @@ video {
 .video-thumb {
     float: left;
     margin:5px;
+    width: 100px;
+    height: 150px;
 }
