@@ -4,18 +4,10 @@ import play.api.mvc._
 import plex.API
 import security.Secured
 
+import scalaj.http.Http
+
 object Proxy extends Controller with Secured {
-  def proxy = withAuth { token => implicit request =>
-    request.getQueryString("url") match {
-      case Some(url) =>
-        println("~~~~" + url)
-
-        routes.Login.login()
-
-        println(API.defaultAuthenticated(url, token).asString)
-        Ok(API.request(url, token, _.header("", ""), _.asBytes).body).as("image/jpeg")
-      case None =>
-        NotFound
-    }
+  def proxy(url: String) = withAuth { token => implicit request =>
+    Ok(Http(API.endpoint(url)).timeout(0, 0).asBytes.body).as("image/jpg")
   }
 }

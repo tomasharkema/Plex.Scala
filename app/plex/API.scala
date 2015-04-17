@@ -21,7 +21,9 @@ object API {
 
   def proxy(path: String) = "/proxy?url=" + URLEncoder.encode(path, "UTF-8")
 
-  def transcodeUrl(path: String, token:String, transcodeType:String) = "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8")
+  def transcodeUrl(path: String, token:String, transcodeType:String) = {
+    "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8") + "&width=150&height=150&minSize=1"
+  }
 
   private def plexRequest(path: String) = Http(path)
     .header("X-Plex-Client-Identifier", "f4x08gwxi3a6ecdi")
@@ -33,13 +35,11 @@ object API {
     .header("X-Plex-Version", "2.3.24")
 
   private def httpRequest(path: String, token: String) = plexRequest(endpoint(path))
-    .header("X-Plex-Token", token)
+      .header("X-Plex-Token", token)
 
-  private def parse(res: HttpResponse[String]): Elem = {
-    XML.loadString(res.body)
-  }
+  private def parse(res: HttpResponse[String]) = XML.loadString(res.body)
 
-  private def authenticate(path: String, cl: (String) => (HttpRequest)): HttpRequest = {
+  private def authenticate(path: String, cl: (String) => (HttpRequest)) = {
     // TODO: n.encode64(n.toUtf8(a.username + ":" + a.password));
     val req = plexRequest("https://plex.tv/users/sign_in.xml")
       .method("POST")
@@ -57,7 +57,6 @@ object API {
       .method("POST")
       .header("Authorization", "Basic " + bearer)
       .asString
-    println(req)
     def token = (parse(req) \ "authentication-token").text
     if (token == null || token.length == 0)
       None
