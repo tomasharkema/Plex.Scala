@@ -11,3 +11,4 @@ GET        /assets/*file        controllers.Assets.at(path="/public", file)
 GET        /proxy               controllers.Proxy.proxy
 
 GET        /login               controllers.Login.login
+POST       /authenticate        controllers.Login.authenticate

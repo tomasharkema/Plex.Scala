@@ -24,7 +24,7 @@ class ApplicationSpec extends Specification {
 
       status(home) must equalTo(SEE_OTHER)
       contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("login")
+      contentAsString(home) must contain ("Login")
     }
   }
 }

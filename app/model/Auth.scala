@@ -4,5 +4,4 @@
 
 package model
 
-case class Auth(token: String, bearer: String) {
-}
+case class Auth(token: String, bearer: String)

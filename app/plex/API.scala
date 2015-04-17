@@ -6,6 +6,7 @@ import model.Auth
 
 import scala.util.Try
 import scala.xml._
+import scalaj.http
 import scalaj.http.{HttpRequest, HttpResponse, Http}
 
 /**
@@ -56,11 +57,12 @@ object API {
       .method("POST")
       .header("Authorization", "Basic " + bearer)
       .asString
-
-    parse(req) \ "authentication-token" match {
-      case <authentication-token>{value}</authentication-token> => Some(value.text)
-      case _ => None: Option[String]
-    }
+    println(req)
+    def token = (parse(req) \ "authentication-token").text
+    if (token == null || token.length == 0)
+      None
+    else
+      Some(token)
   }
 
   def request[T](path: String, token:String, requestClosure: (HttpRequest) => (HttpRequest), as:(HttpRequest) => (HttpResponse[T])): HttpResponse[T] = {
@@ -81,14 +83,11 @@ object API {
   def defaultAuthenticated(path: String, token:String) = httpRequest(path, token)
 
   def getMovies(token:String): Seq[Movie] = {
-    val moviesReq = request("/library/sections/1/all", token, (req: HttpRequest) => req.header("a", "b"), _.asString)
+    val moviesReq = request("/library/sections/1/all", token, _.header("a", "b"), _.asString)
     val xml = parse(moviesReq)
-
     val movies = xml \\ "Video"
 
-    movies.map { el =>
-      new Movie(el)
-    }
+    movies.map(Movie.parseNode)
   }
 
 }

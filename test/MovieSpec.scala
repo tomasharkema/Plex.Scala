@@ -15,7 +15,7 @@ class MovieSpec extends Specification {
 
   "Movie" should {
     "render the given XML" in {
-      val movie = new Movie(XML.loadString(correctXmlString))
+      val movie = Movie.parseNode(XML.loadString(correctXmlString))
       movie.title must startWith("American Gangster")
     }
   }
