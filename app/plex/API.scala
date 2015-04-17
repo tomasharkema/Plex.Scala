@@ -23,11 +23,11 @@ object API {
 
   def proxy(path: Uri) = "/proxy" ? ("url" -> URLEncoder.encode(path toString(), "UTF-8"))
 
-  def transcodeUrl(path: String, token:String, transcodeType:String) = endpoint / transcodeType+"/:" / "transcode" &
+  def transcodeUrl(path: String, token:String, transcodeType:String) = endpoint / transcodeType + "/:" / "transcode" &
       ("X-Plex-Token" -> token) &
       ("url" -> ("http://127.0.0.1:32400" + path)) &
-      ("width" -> 150) &
-      ("height" -> 150) &
+      ("width" -> 400) &
+      ("height" -> 400) &
       ("minSize" -> 1)
 
   private def plexRequest(path: String) = Http(path)

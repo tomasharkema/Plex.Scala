@@ -5,6 +5,8 @@ Plex implementation in Scala
 
 This is a little plex movies client that fetches your movies and present them in a isomorphic way. Also it is my first Scala project!
 
+![image](https://www.dropbox.com/s/8p5yhzivqx4wxui/Schermafdruk%202015-04-17%2022.50.46.png?dl=1)
+
 ====
 
 Still Todo:

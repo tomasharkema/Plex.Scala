@@ -1,13 +1,24 @@
 @(movie: plex.Movie, token: String)
 
-@main(movie.title) {
+@main(movie.title, backdrop = movie.artUrl(token).toString()) {
 
-  <h1>@movie.title</h1>
+  <h1><a href="@controllers.routes.Application.index()"><i class="glyphicon glyphicon-chevron-left"></i></a> @movie.title</h1>
 
-  <img src="@movie.thumbUrl(token)" width="100px">
+  <div class="viewer">
+    <video controls="false" autoplay>
+      <source src="@movie.getStream(token)">
+    </video>
+  </div>
 
-  <video controls autoplay>
-    <source src="@movie.getStream(token)">
-  </video>
+  <div class="row info">
+    <div class="col-md-4">
+      <img src="@movie.thumbUrl(token)" class="thumb">
+    </div>
+    <div class="col-md-8">
+      <p class="description">
+      @movie.description
+      </p>
+    </div>
+  </div>
 
 }

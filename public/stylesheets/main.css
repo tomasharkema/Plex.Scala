@@ -39,6 +39,56 @@ body {
     border-top-right-radius: 0;
 }
 
+html, body {
+    background-color: rgba(0,0,0,0);
+    color:white;
+}
+
+a {
+    color: white;
+}
+
 video {
     width: 100%;
+    box-shadow: 0 0 100px 0 black;
+}
+
+.backdrop {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    background: black;
+}
+
+.backdrop div {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.5;
+}
+
+.viewer {
+}
+
+.info {
+    /*background-color: rgba(0,0,0,0.4);*/
+    padding-top: 100px;
+    min-height: 300px;
+}
+
+.info img.thumb {
+    width: 200px;
+}
+
+.info p.description {
+    font-size: 22px;
+}
+
+.video-thumb {
+    float: left;
+    margin:5px;
 }

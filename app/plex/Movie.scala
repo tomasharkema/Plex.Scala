@@ -6,10 +6,16 @@ import com.netaporter.uri.dsl._
 /**
  * Created by tomas on 12-04-15.
  */
-case class Movie(title: String, thumb: String, key: String, media:Seq[Media]) {
+case class Movie(title: String,
+                 art: String,
+                 thumb: String,
+                 key: String,
+                 media:Seq[Media],
+                 description: String) {
 
   // getters
   def thumbUrl(token: String) = API.transcodeUrl(thumb, token, "photo")
+  def artUrl(token: String) = API.endpoint + art & ("X-Plex-Token" -> token)
 
   def detailUrl = controllers.routes.Application.movie(key)
 
@@ -25,7 +31,14 @@ case class Part(url: String)
 object Movie {
   // constructors
   def parseNode(el: Node) = {
-    Movie((el \ "@title").text, (el \ "@thumb").text, (el \ "@key").text.split("/").last, (el \ "Media").map(Media.parseNode))
+    Movie(
+      (el \ "@title").text,
+      (el \ "@art").text,
+      (el \ "@thumb").text,
+      (el \ "@key").text.split("/").last,
+      (el \ "Media").map(Media.parseNode),
+      (el \ "@summary").text
+    )
   }
 
 }
