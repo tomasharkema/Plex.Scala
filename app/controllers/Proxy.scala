@@ -10,9 +10,7 @@ object Proxy extends Controller with Secured {
       case Some(url) =>
         println("~~~~" + url)
 
-
         routes.Login.login()
-
 
         println(API.defaultAuthenticated(url, token).asString)
         Ok(API.request(url, token, _.header("", ""), _.asBytes).body).as("image/jpeg")
