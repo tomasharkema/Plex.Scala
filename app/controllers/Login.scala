@@ -42,4 +42,11 @@ object Login extends Controller {
       }
     )
   }
+
+  def logout = Action {
+    Redirect(routes.Login.login).withNewSession.flashing(
+      "success" -> "You are now logged out."
+    )
+  }
+
 }

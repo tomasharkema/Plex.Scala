@@ -2,12 +2,22 @@
 
 @import helper._
 
-@main("Login") {
-  <h1>Login!</h1>
+@implicitField = @{ FieldConstructor(bootstrapLoginField.f) }
 
-  @helper.form(action = routes.Login.authenticate) {
-    @inputText(userForm("username"))
-    @inputPassword(userForm("password"))
-    <input type="submit" value="Submit">
+@main("Login") {
+
+  @helper.form(action = routes.Login.authenticate, 'class -> "form-signin") {
+
+    <h2 class="form-signin-heading">Please sign in</h2>
+
+    @helper.input(userForm("username")) { (id, name, value, args) =>
+      <input type="text" class="form-control" placeholder="Username" value="@value" required autofocus name="@name" id="@id" @toHtmlArgs(args)>
+    }
+    @helper.input(userForm("password")) { (id, name, value, args) =>
+      <input type="password" name="@name" id="@id" class="form-control" placeholder="Password" required @toHtmlArgs(args)>
+    }
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
   }
+
 }

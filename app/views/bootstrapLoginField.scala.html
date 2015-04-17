@@ -1,0 +1,6 @@
+@(elements: helper.FieldElements)
+
+<label for="@elements.id" class="sr-only @if(elements.hasErrors) {error}">@elements.label</label>
+<span class="errors">@elements.errors.mkString(", ")</span>
+<span class="help">@elements.infos.mkString(", ")</span>
+@elements.input

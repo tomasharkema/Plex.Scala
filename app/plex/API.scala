@@ -2,28 +2,33 @@ package plex
 
 import java.net.{URLEncoder, URL}
 
+import com.netaporter.uri.Uri
 import model.Auth
 
 import scala.util.Try
 import scala.xml._
 import scalaj.http
+import com.netaporter.uri.dsl._
 import scalaj.http.{HttpRequest, HttpResponse, Http}
 
 /**
  * Created by tomas on 12-04-15.
  */
 object API {
-  //private def host = "192.168.0.100"
-  private def host = "local.tomasharkema.nl"
+  private def host = "192.168.0.100"
+  //private def host = "local.tomasharkema.nl"
   private def port = 32400
 
-  def endpoint:String => String = new URL("http", host, port, _).toString
+  def endpoint = Uri.parse(new URL("http", host, port, "").toString)
 
-  def proxy(path: String) = "/proxy?url=" + URLEncoder.encode(path, "UTF-8")
+  def proxy(path: Uri) = "/proxy" ? ("url" -> URLEncoder.encode(path toString(), "UTF-8"))
 
-  def transcodeUrl(path: String, token:String, transcodeType:String) = {
-    "/" + transcodeType + "/:/transcode?X-Plex-Token=" + token + "&url=" + URLEncoder.encode("http://127.0.0.1:32400" + path, "UTF-8") + "&width=150&height=150&minSize=1"
-  }
+  def transcodeUrl(path: String, token:String, transcodeType:String) = endpoint / transcodeType+"/:" / "transcode" &
+      ("X-Plex-Token" -> token) &
+      ("url" -> ("http://127.0.0.1:32400" + path)) &
+      ("width" -> 150) &
+      ("height" -> 150) &
+      ("minSize" -> 1)
 
   private def plexRequest(path: String) = Http(path)
     .header("X-Plex-Client-Identifier", "f4x08gwxi3a6ecdi")
@@ -34,8 +39,10 @@ object API {
     .header("X-Plex-Product", "Plex Web")
     .header("X-Plex-Version", "2.3.24")
 
-  private def httpRequest(path: String, token: String) = plexRequest(endpoint(path))
+  private def httpRequest(path: Uri, token: String) = {
+    plexRequest(endpoint + path)
       .header("X-Plex-Token", token)
+  }
 
   private def parse(res: HttpResponse[String]) = XML.loadString(res.body)
 
@@ -79,14 +86,19 @@ object API {
     }
   }
 
+  def request(path: String, token:String) = request[String](path, token, _.copy(), _.asString)
+
   def defaultAuthenticated(path: String, token:String) = httpRequest(path, token)
 
   def getMovies(token:String): Seq[Movie] = {
-    val moviesReq = request("/library/sections/1/all", token, _.header("a", "b"), _.asString)
-    val xml = parse(moviesReq)
+    val xml = parse(request("library/sections/1/all", token, _.header("a", "b"), _.asString))
     val movies = xml \\ "Video"
-
     movies.map(Movie.parseNode)
   }
 
+  def getMovie(movieId: String, token:String): Option[Movie] = {
+    val xml = request("library" / "metadata" / movieId & ("checkFiles" -> "1"), token)
+    val movie = parse(xml) \ "Video"
+    movie.map(Movie.parseNode).headOption
+  }
 }
