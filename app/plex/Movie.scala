@@ -13,7 +13,7 @@ case class Movie(title: String, thumb: String, key: String, media:Seq[Media]) {
 
   def detailUrl = controllers.routes.Application.movie(key)
 
-  def getStream(token: String) = API.endpoint + media.head.parts.head.url & ("X-Plex-Token=" -> token)
+  def getStream(token: String) = API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)
 
   // overrides
   override def toString = title
