@@ -1,5 +1,8 @@
 package plex
 
+import play.modules.reactivemongo.json.collection.JSONCollection
+import reactivemongo.api.{MongoConnection, MongoDriver}
+
 import scala.xml._
 import com.netaporter.uri.dsl._
 import utils.StringUtils._
@@ -13,6 +16,7 @@ case class Movie(title: String,
                  key: String,
                  media:Seq[Media],
                  description: String,
+                // JS style (inc. millisecons)
                  offset:Option[Int]) {
   // getters
   def thumbUrl(token: String) = API.transcodeUrl(thumb, token, "photo")
@@ -20,12 +24,14 @@ case class Movie(title: String,
 
   def detailUrl = controllers.routes.MovieController.movie(key)
 
-  def getStream(token: String) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
-    (offset match {
-      case Some(o) => "#t=" + o/1000
-      case None => ""
+  def getStream(token: String, offsetOverride: Option[Double] = None) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
+    (offsetOverride match {
+      case Some(o) => "#t=" + o
+      case None => offset match {
+        case Some(o) => "#t=" + o/1000
+        case None => ""
+      }
     })
-
   // overrides
   override def toString = title
 }
@@ -36,7 +42,6 @@ case class Part(url: String)
 case class MovieState(user: String, offset: Double)
 
 object Movie {
-  // constructors
   def parseNode(el: Node) = {
     Movie(
       (el \ "@title").text,
@@ -48,7 +53,6 @@ object Movie {
       (el \ "@viewOffset").text.toIntOpt
     )
   }
-
 }
 
 object Media {

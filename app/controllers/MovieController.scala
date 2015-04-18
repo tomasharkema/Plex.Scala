@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.Date
+
 import play.api.mvc._
 import play.api.libs.json._
 import play.modules.reactivemongo._
@@ -19,23 +21,39 @@ object MovieController extends Controller with Secured with MongoController {
     Ok(views.html.movies(movies, token))
   }
 
-  def movie(movieId: String) = withAuth { token => implicit request =>
+  def movie(movieId: String) = withUserFuture { (user, token) => implicit request =>
     API.getMovie(movieId, token) match {
-      case Some(movie) => Ok(views.html.movie(movie, token))
-      case None => Ok("wut")
+      case Some(movie) => {
+        val findOffset = collection.find(Json.obj(
+          "uid" -> user.uid,
+          "movieId" -> movieId
+        )).one[JsObject]
+
+        findOffset.map { opt =>
+          val offset = opt.map { obj =>
+            (obj \ "offset").toString().toDouble
+          }
+          Ok(views.html.movie(movie, offset, token))
+        }
+
+      }
+      case None => Future.apply(Ok("wut"))
     }
   }
 
-  def watch(movieId: String, state: String, offset: Double, token: String) = Action.async {
-
-    println(movieId)
+  def watch(movieId: String, state: String, offset: Double) = withUserFuture { (user, token) => implicit request =>
 
     val futureUpdate = collection.update(
-      Json.obj("movieId" -> movieId,
-        "user" -> token),
-      Json.obj("movieId" -> movieId,
-        "user" -> token,
-        "offset" -> JsNumber(offset)),
+      Json.obj(
+        "movieId" -> movieId,
+        "uid" -> user.uid
+      ),
+      Json.obj(
+        "movieId" -> movieId,
+        "uid" -> user.uid,
+        "offset" -> JsNumber(offset),
+        "date" -> new Date
+      ),
       upsert = true
     )
 

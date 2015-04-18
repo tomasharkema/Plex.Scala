@@ -2,7 +2,7 @@ package controllers
 
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding
-import model.User
+import model.UserForm
 import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc._
@@ -18,10 +18,10 @@ object Login extends Controller {
     mapping(
       "username" -> text,
       "password" -> text
-    ) (User.apply) (User.unapply)
+    ) (UserForm.apply) (UserForm.unapply)
   )
 
-  def check(user: User): Option[String] = {
+  def check(user: UserForm): Option[String] = {
     def bearer = BaseEncoding.base64().encode((user.username + ":" + user.password).getBytes(Charsets.UTF_8))
     API.authentication(bearer)
   }

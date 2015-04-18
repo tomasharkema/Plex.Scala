@@ -3,11 +3,8 @@ package plex
 import java.net.{URLEncoder, URL}
 
 import com.netaporter.uri.Uri
-import model.Auth
-
-import scala.util.Try
+import model._
 import scala.xml._
-import scalaj.http
 import com.netaporter.uri.dsl._
 import scalaj.http.{HttpRequest, HttpResponse, Http}
 
@@ -88,13 +85,19 @@ object API {
 
   def defaultAuthenticated(path: String, token:String) = httpRequest(path, token)
 
-  def getMovies(token:String): Seq[Movie] = {
+  def getUser(token: String): Option[User] = {
+    val xml = parse(plexRequest("https://plex.tv/users/account").header("X-Plex-Token", token).asString)
+    val user = xml \\ "user"
+    user.map(User.parseUser).headOption
+  }
+
+  def getMovies(token: String): Seq[Movie] = {
     val xml = parse(request("library/sections/1/all", token, _.header("a", "b"), _.asString))
     val movies = xml \\ "Video"
     movies.map(Movie.parseNode)
   }
 
-  def getMovie(movieId: String, token:String): Option[Movie] = {
+  def getMovie(movieId: String, token: String): Option[Movie] = {
     val xml = request("library" / "metadata" / movieId & ("checkFiles" -> "1"), token)
     val movie = parse(xml) \ "Video"
     movie.map(Movie.parseNode).headOption

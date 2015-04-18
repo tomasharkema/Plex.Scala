@@ -1,11 +1,13 @@
 package security
 
-import model.Auth
+import model.{User, Auth}
 import play._
 import play.api._
 import play.api.mvc._
 import play.core.Router
 import plex.API
+
+import scala.concurrent.Future
 
 /**
  * Created by tomas on 15-04-15.
@@ -17,6 +19,10 @@ trait Secured {
   def bearer(request: RequestHeader) = request.cookies.get("bearer").orNull.value
 
   def onUnauthorized(request: RequestHeader) = Results.Redirect(controllers.routes.Login.login())
+  def onUnauthorizedFuture(request: RequestHeader) = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Future.apply(Results.Redirect(controllers.routes.Login.login()))
+  }
 
   def withAuth(f: => String => Request[AnyContent] => Result) = {
     Security.Authenticated(token, onUnauthorized) { user =>
@@ -24,14 +30,26 @@ trait Secured {
     }
   }
 
+  def withAuthFuture(f: => String => Request[AnyContent] => Future[Result]) = {
+    Security.Authenticated(token, onUnauthorized) { user =>
+      Action.async(request => f(user)(request))
+    }
+  }
+
   /**
    * This method shows how you could wrap the withAuth method to also fetch your user
    * You will need to implement UserDAO.findOneByUsername
    */
-  def withUser(f: Auth => Request[AnyContent] => Result) = withAuth { bearer => implicit request =>
-    API.authentication(bearer).map { token =>
-      f(Auth(token, bearer))(request)
+  def withUser(f: (User, String) => Request[AnyContent] => Result) = withAuth { token => implicit request =>
+    API.getUser(token).map { user =>
+      f(user, token)(request)
     }.getOrElse(onUnauthorized(request))
+  }
+
+  def withUserFuture(f: (User, String) => Request[AnyContent] => Future[Result]) = withAuthFuture { token => implicit request =>
+    API.getUser(token).map { user =>
+      f(user, token)(request)
+    }.getOrElse(onUnauthorizedFuture(request))
   }
 
 }
