@@ -1,6 +1,8 @@
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, WithApplication}
 import plex.Movie
 
 import scala.xml.XML
@@ -8,6 +10,9 @@ import scala.xml.XML
 /**
  * Created by tomas on 14-04-15.
  */
+
+import com.netaporter.uri.dsl._
+
 @RunWith(classOf[JUnitRunner])
 class MovieSpec extends Specification {
 
@@ -19,5 +24,19 @@ class MovieSpec extends Specification {
       movie.title must startWith("American Gangster")
       movie.key must startWith("853")
     }
+  }
+
+  "MovieWatch" should {
+    "should give success" in new WithApplication {
+      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 44.4) & ("token" -> ""))).get
+
+      status(watchUpdate) must equalTo(OK)
+      contentType(watchUpdate) must beSome.which(_ == "application/json")
+    }
+
+    "should have updated videoState" in new WithApplication {
+      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 44.4) & ("token" -> ""))).get
+    }
+
   }
 }

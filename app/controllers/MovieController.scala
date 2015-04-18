@@ -8,6 +8,7 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import plex.{MovieState, API}
 import security.Secured
 import scala.concurrent.Future
+import scala.util.Try
 
 object MovieController extends Controller with Secured with MongoController {
 
@@ -25,18 +26,21 @@ object MovieController extends Controller with Secured with MongoController {
     }
   }
 
-  def watch(movieId: String, state: String, offset: Double, token: String) = withAuth { token => implicit request =>
+  def watch(movieId: String, state: String, offset: Double, token: String) = Action.async {
 
     println(movieId)
 
-    val futureUpdate = collection.insert(
+    val futureUpdate = collection.update(
+      Json.obj("movieId" -> movieId,
+        "user" -> token),
       Json.obj("movieId" -> movieId,
         "user" -> token,
-        "offset" -> JsNumber(offset))
+        "offset" -> JsNumber(offset)),
+      upsert = true
     )
 
-    Ok(Json.toJson(
-      Json.obj("success" -> true)
-    ))
+    futureUpdate.map { r =>
+      Ok(Json.obj("success" -> r.ok))
+    }
   }
 }
