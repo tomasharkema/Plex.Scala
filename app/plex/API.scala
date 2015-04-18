@@ -39,10 +39,8 @@ object API {
     .header("X-Plex-Product", "Plex Web")
     .header("X-Plex-Version", "2.3.24")
 
-  private def httpRequest(path: Uri, token: String) = {
-    plexRequest(endpoint + path)
+  private def httpRequest(path: Uri, token: String) = plexRequest(endpoint + path)
       .header("X-Plex-Token", token)
-  }
 
   private def parse(res: HttpResponse[String]) = XML.loadString(res.body)
 

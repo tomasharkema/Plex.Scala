@@ -2,10 +2,10 @@
 
 @main(movie.title, backdrop = movie.artUrl(token).toString()) {
 
-  <h1><a href="@controllers.routes.Application.index()"><i class="glyphicon glyphicon-chevron-left"></i></a> @movie.title</h1>
+  <h1><a href="@controllers.routes.MovieController.index()"><i class="glyphicon glyphicon-chevron-left"></i></a> @movie.title</h1>
 
   <div class="viewer">
-    <video controls="false" src="@movie.getStream(token)" data-token="@token" autoplay>
+    <video controls="false" src="@movie.getStream(token)" data-id="@movie.key" data-token="@token" autoplay>
     </video>
   </div>
 

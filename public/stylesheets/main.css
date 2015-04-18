@@ -48,11 +48,6 @@ a {
     color: white;
 }
 
-video {
-    width: 100%;
-    box-shadow: 0 0 100px 0 black;
-}
-
 .backdrop {
     position: fixed;
     width: 100%;
@@ -72,6 +67,11 @@ video {
 }
 
 .viewer {
+}
+
+.viewer video {
+    width: 100%;
+    /*box-shadow: 0 0 100px 0 black;*/
 }
 
 .info {

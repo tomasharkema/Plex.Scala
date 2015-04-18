@@ -35,7 +35,7 @@ object Login extends Controller {
       formWithErrors => BadRequest(html.login(formWithErrors)),
       user => {
         check(user) match {
-          case Some(token) => Redirect(routes.Application.index).withSession(Security.username -> token)
+          case Some(token) => Redirect(routes.MovieController.index).withSession(Security.username -> token)
           case None => BadRequest(html.login(loginForm.fill(user)))
         }
       }

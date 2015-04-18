@@ -1,10 +1,11 @@
 package controllers
 
 import play.api.mvc._
+import play.api.libs.json.Json
 import plex.API
 import security.Secured
 
-object Application extends Controller with Secured {
+object MovieController extends Controller with Secured {
 
   def index = withAuth { token => implicit request =>
     val movies = API.getMovies(token)
@@ -17,4 +18,14 @@ object Application extends Controller with Secured {
       case None => Ok("wut")
     }
   }
+
+  def watch(movieId: String, state: String, offset: Double) = withAuth { token => implicit request =>
+
+    println(movieId, state, offset)
+
+    Ok(Json.toJson(
+      Json.obj("success" -> true)
+    ))
+  }
+
 }
