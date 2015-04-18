@@ -3,6 +3,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
+import play.mvc.Security
 import plex.Movie
 
 import scala.xml.XML
@@ -27,15 +28,15 @@ class MovieSpec extends Specification {
   }
 
   "MovieWatch" should {
-    "should give success" in new WithApplication {
-      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 44.4) & ("token" -> ""))).get
+    "should give success" in new WithAppLogin {
+      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 42.7)).withSession(("username", LoginUtil.token))).get
 
       status(watchUpdate) must equalTo(OK)
       contentType(watchUpdate) must beSome.which(_ == "application/json")
     }
 
     "should have updated videoState" in new WithApplication {
-      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 44.4) & ("token" -> ""))).get
+      val watchUpdate = route(FakeRequest(POST, "/watch" & ("movieId" -> "44") & ("state" -> "playing") & ("offset" -> 42.7) & ("token" -> ""))).get
     }
 
   }
