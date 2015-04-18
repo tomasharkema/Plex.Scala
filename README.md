@@ -7,6 +7,7 @@ This is a little plex movies client that fetches your movies and present them in
 
 ![image](https://www.dropbox.com/s/8p5yhzivqx4wxui/Schermafdruk%202015-04-17%2022.50.46.png?dl=1)
 
+![Big Hero Six](https://www.dropbox.com/s/7nlef0ja00587j3/Schermafdruk%202015-04-18%2019.53.23.png?dl=1)
 ====
 
 Still Todo:
@@ -14,4 +15,4 @@ Still Todo:
 - [ ] Take the plex interfacing apart from the Play code
 - [ ] Login
 - [ ] Token preserving
-- [ ] Remote server redirecting via PlexAp
+- [ ] Remote server redirecting via PlexApp
