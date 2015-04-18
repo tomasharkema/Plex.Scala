@@ -33,6 +33,8 @@ case class Movie(title: String,
 case class Media(resolution: String, parts: Seq[Part])
 case class Part(url: String)
 
+case class MovieState(user: String, offset: Double)
+
 object Movie {
   // constructors
   def parseNode(el: Node) = {

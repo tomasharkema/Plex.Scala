@@ -1,11 +1,17 @@
 package controllers
 
 import play.api.mvc._
-import play.api.libs.json.Json
-import plex.API
+import play.api.libs.json._
+import play.modules.reactivemongo._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.modules.reactivemongo.json.collection.JSONCollection
+import plex.{MovieState, API}
 import security.Secured
+import scala.concurrent.Future
 
-object MovieController extends Controller with Secured {
+object MovieController extends Controller with Secured with MongoController {
+
+  def collection: JSONCollection = db.collection[JSONCollection]("movies")
 
   def index = withAuth { token => implicit request =>
     val movies = API.getMovies(token)
@@ -19,13 +25,18 @@ object MovieController extends Controller with Secured {
     }
   }
 
-  def watch(movieId: String, state: String, offset: Double) = withAuth { token => implicit request =>
+  def watch(movieId: String, state: String, offset: Double, token: String) = withAuth { token => implicit request =>
 
-    println(movieId, state, offset)
+    println(movieId)
+
+    val futureUpdate = collection.insert(
+      Json.obj("movieId" -> movieId,
+        "user" -> token,
+        "offset" -> JsNumber(offset))
+    )
 
     Ok(Json.toJson(
       Json.obj("success" -> true)
     ))
   }
-
 }

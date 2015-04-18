@@ -13,7 +13,8 @@ $(function(){
                 url: "/watch?" + $.param({
                     movieId: $(video).attr("data-id"),
                     state: "playing",
-                    offset: video.currentTime
+                    offset: video.currentTime,
+                    token: $(video).attr("data-token")
                 }),
                 method: "post"
             });
