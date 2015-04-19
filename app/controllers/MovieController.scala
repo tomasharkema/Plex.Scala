@@ -29,8 +29,17 @@ object MovieController extends Controller with Secured with MongoController {
       .collect[Seq]()
       .map { watchingJS =>
         val watching = watchingJS.flatMap { obj =>
-          movies.find(p = _.key == (obj \ "movieId").as[String])
+          val mov = movies.find(p = _.key == (obj \ "movieId").as[String])
+          mov.flatMap { m =>
+            val offset = (obj \ "offset").as[Double]
+            if (m.watchingProgress(Some(offset)).getOrElse(0f) < 0.9) {
+              Some(m.copy(offset = Some(offset.toInt)))
+            } else {
+              None
+            }
+          }
         }
+      println(watching)
         Ok(views.html.movies(watching, movies, token))
       }
   }

@@ -10,6 +10,15 @@ body {
     font-family: "aktiv";
 }
 
+html, body {
+    background-color: rgba(0,0,0,0);
+    color:white;
+}
+
+a, a:hover, a:active {
+    color: white;
+}
+
 .form-signin {
     max-width: 330px;
     padding: 15px;
@@ -43,15 +52,6 @@ body {
     margin-bottom: 10px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-}
-
-html, body {
-    background-color: rgba(0,0,0,0);
-    color:white;
-}
-
-a, a:hover {
-    color: white;
 }
 
 .backdrop {
@@ -99,7 +99,7 @@ a, a:hover {
     float: left;
     margin:5px;
     width: 150px;
-    min-height: 270px;
+    height: 300px;
 }
 
 .video-thumb img {

@@ -21,8 +21,23 @@ class ApplicationSpec extends Specification {
 
     "should redirect to login page" in new WithApplication {
       val home = route(FakeRequest(GET, "/")).get
-
       status(home) must equalTo(SEE_OTHER)
     }
+
+    "shoud show all the movies" in new WithAppLogin {
+      val home = route(LoginUtil.request(GET, "/")).get
+      status(home) must equalTo(OK)
+      contentType(home) must beSome.which(_ == "text/html")
+      contentAsString(home) must contain ("Movies")
+    }
+
+    "should show a detail of a movie" in new WithAppLogin {
+      val home = route(LoginUtil.request(GET, "/movie/41")).get
+      status(home) must equalTo(OK)
+      contentType(home) must beSome.which(_ == "text/html")
+      contentAsString(home) must contain ("Big Hero 6")
+      contentAsString(home) must contain ("<video>")
+    }
+
   }
 }

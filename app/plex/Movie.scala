@@ -16,6 +16,7 @@ case class Movie(title: String,
                  key: String,
                  media:Seq[Media],
                  description: String,
+                 duration: Int,
                 // JS style (inc. millisecons)
                  offset:Option[Int]) {
   // getters
@@ -24,14 +25,20 @@ case class Movie(title: String,
 
   def detailUrl = controllers.routes.MovieController.movie(key)
 
+  private def off(offsetOverride: Option[Double] = None): Option[Double] = (offsetOverride, offset) match {
+    case (Some(o), _) => Some(o.toDouble)
+    case (None, Some(o)) => Some(o.toDouble)
+    case (None, None) => None
+  }
+
+  def watchingOffset(offsetOverride: Option[Double] = None): Option[Double] = off(offsetOverride).flatMap { o =>
+    if (watchingProgress(offsetOverride).getOrElse(0f) < 0.9)  Some(o) else None
+  }
+
+  def watchingProgress(offsetOverride: Option[Double] = None): Option[Float] = off(offsetOverride).map(o => o.toFloat / duration.toFloat)
+
   def stream(token: String, offsetOverride: Option[Double] = None) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
-    (offsetOverride match {
-      case Some(o) => "#t=" + o
-      case None => offset match {
-        case Some(o) => "#t=" + o/1000
-        case None => ""
-      }
-    })
+    watchingOffset(offsetOverride).map(o => "#t="+o).getOrElse("")
 
   def subtitles = media.head.subtitles
 
@@ -59,7 +66,8 @@ object Movie {
       (el \ "@key").text.split("/").last,
       (el \ "Media").map(Media.parseNode),
       (el \ "@summary").text,
-      (el \ "@viewOffset").text.toIntOpt
+      (el \ "@duration").text.toInt/1000,
+      (el \ "@viewOffset").text.toIntOpt.map(_/1000)
     )
   }
 }

@@ -19,7 +19,8 @@ object LoginUtil extends RouteInvokers with Writeables {
   var token: String = ""
 
   def login() {
-    token = session(route(loginRequest).get).data.get(Security.username).get
+    _session = session(route(loginRequest).get)
+    token = _session.get(Security.username).get
   }
 
   def request(a:String, b:String) = FakeRequest(a, b).withSession((Security.username, token))
