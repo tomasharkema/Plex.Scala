@@ -1,14 +1,28 @@
-@(movies: Seq[plex.Movie], token: String)
+@(watching: Seq[plex.Movie] = Seq[plex.Movie](), movies: Seq[plex.Movie], token: String)
 
 @main("Movies") {
 
     <h1>Movies</h1>
 
-    @movies.map { movie =>
+    <div class="watching">
+    @watching.map { movie =>
         <div class="video-thumb">
             <a href="@movie.detailUrl.toString()">
                 <img src="@movie.thumbUrl(token)" width="100px">
+                <p>@movie.title</p>
             </a>
         </div>
     }
+        <div class="clear"></div>
+    </div>
+
+@movies.map { movie =>
+    <div class="video-thumb">
+        <a href="@movie.detailUrl.toString()">
+            <img src="@movie.thumbUrl(token)" width="100px">
+            <p>@movie.title</p>
+        </a>
+    </div>
+}
+
 }

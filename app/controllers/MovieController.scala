@@ -15,11 +15,24 @@ import scala.concurrent.Future
 
 object MovieController extends Controller with Secured with MongoController {
 
-  def collection: JSONCollection = db.collection[JSONCollection]("movies")
+  def collection: JSONCollection = db.collection[JSONCollection]("watching")
 
-  def index = withAuth { token => implicit request =>
+  def index = withUserFuture { (user, token) => implicit request =>
     val movies = API.getMovies(token)
-    Ok(views.html.movies(movies, token))
+
+    collection
+      .find(Json.obj(
+        "uid" -> user.uid
+      ))
+      .sort(Json.obj("date" -> -1))
+      .cursor[JsObject]
+      .collect[Seq]()
+      .map { watchingJS =>
+        val watching = watchingJS.flatMap { obj =>
+          movies.find(p = _.key == (obj \ "movieId").as[String])
+        }
+        Ok(views.html.movies(watching, movies, token))
+      }
   }
 
   def movie(movieId: String) = withUserFuture { (user, token) => implicit request =>

@@ -44,7 +44,7 @@ html, body {
     color:white;
 }
 
-a {
+a, a:hover {
     color: white;
 }
 
@@ -92,5 +92,18 @@ a {
     float: left;
     margin:5px;
     width: 100px;
-    height: 150px;
+    height: 200px;
+}
+
+.video-thumb img {
+    padding-bottom: 10px;
+    min-height: 150px;
+}
+
+.watching {
+    margin-bottom: 100px;
+}
+
+.clear {
+    clear:both;
 }
