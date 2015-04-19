@@ -40,7 +40,7 @@ case class Movie(title: String,
 }
 
 case class Media(resolution: String, parts: Seq[Part]) {
-  def subtitles = parts.flatMap(_.stream).filter(_.codec == "srt")
+  def subtitles = parts.flatMap(_.stream).filter(_.codec == "srt").filter(_.languageCode != "")
 }
 case class Part(url: String, stream: Seq[Stream])
 case class Stream(codec: String, key: String, language: String, languageCode: String) {

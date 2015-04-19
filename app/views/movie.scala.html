@@ -7,7 +7,7 @@
   <div class="viewer">
     <video controls="false" data-id="@movie.key" data-token="@token" autoplay preload="metadata">
       <source src="@movie.stream(token, offset)">
-    @movie.subtitles.map { sub =>
+    @movie.subtitles.filter(_.languageCode == "dut").map { sub =>
       <track label="@sub.language" src="@sub.endpoint(movie.key)" kind="subtitles" srclang="@sub.languageCode">
     }
 
