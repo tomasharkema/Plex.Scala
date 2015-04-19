@@ -24,7 +24,7 @@ case class Movie(title: String,
 
   def detailUrl = controllers.routes.MovieController.movie(key)
 
-  def getStream(token: String, offsetOverride: Option[Double] = None) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
+  def stream(token: String, offsetOverride: Option[Double] = None) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
     (offsetOverride match {
       case Some(o) => "#t=" + o
       case None => offset match {
@@ -32,12 +32,21 @@ case class Movie(title: String,
         case None => ""
       }
     })
+
+  def subtitles = media.head.subtitles
+
   // overrides
   override def toString = title
 }
 
-case class Media(resolution: String, parts: Seq[Part])
-case class Part(url: String)
+case class Media(resolution: String, parts: Seq[Part]) {
+  def subtitles = parts.flatMap(_.stream).filter(_.codec == "srt")
+}
+case class Part(url: String, stream: Seq[Stream])
+case class Stream(codec: String, key: String, language: String, languageCode: String) {
+  def url(token: String) = API.endpoint + key & ("X-Plex-Token" -> token)
+  def endpoint(movie: String) = controllers.routes.MovieController.subtitles(movie, languageCode)
+}
 
 case class MovieState(user: String, offset: Double)
 
@@ -60,5 +69,9 @@ object Media {
 }
 
 object Part {
-  def parseNode(el: Node) = Part((el \ "@key").text)
+  def parseNode(el: Node) = Part((el \ "@key").text, (el \\ "Stream").map(Stream.parseNode))
+}
+
+object Stream {
+  def parseNode(el: Node) = Stream((el \ "@codec").text, (el \ "@key").text, (el \ "@language").text, (el \ "@languageCode").text)
 }

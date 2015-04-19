@@ -5,7 +5,12 @@
   <h1><a href="@controllers.routes.MovieController.index()"><i class="glyphicon glyphicon-chevron-left"></i></a> @movie.title</h1>
 
   <div class="viewer">
-    <video controls="false" src="@movie.getStream(token, offset)" data-id="@movie.key" data-token="@token" autoplay>
+    <video controls="false" data-id="@movie.key" data-token="@token" autoplay preload="metadata">
+      <source src="@movie.stream(token, offset)">
+    @movie.subtitles.map { sub =>
+      <track label="@sub.language" src="@sub.endpoint(movie.key)" kind="subtitles" srclang="@sub.languageCode">
+    }
+
     </video>
   </div>
 
@@ -16,6 +21,8 @@
     <div class="col-md-8">
       <p class="description">
         @movie.description
+      </p>
+      <p>
       </p>
     </div>
   </div>
