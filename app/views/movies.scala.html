@@ -9,9 +9,8 @@
         <div class="video-thumb">
             <a href="@movie.detailUrl.toString()">
                 <img src="@movie.thumbUrl(token)">
+                <div class="p_progress"><div class="p_progress-indicator" style="width: @(movie.watchingProgress().map(_*100))%;"></div></div>
                 <p>@movie.title</p>
-
-                <p>@movie.watchingProgress()</p>
             </a>
         </div>
     }

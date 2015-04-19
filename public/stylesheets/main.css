@@ -103,7 +103,6 @@ a, a:hover, a:active {
 }
 
 .video-thumb img {
-    padding-bottom: 10px;
     min-height: 150px;
     width: 100%;
 }
@@ -114,4 +113,17 @@ a, a:hover, a:active {
 
 .clear {
     clear:both;
+}
+
+.p_progress {
+    background: black;
+    width: 100%;
+    height: 5px;
+    margin-bottom: 10px;
+}
+
+.p_progress .p_progress-indicator {
+    background-color: #cc7b19;
+    position: relative;
+    height: 100%;
 }
