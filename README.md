@@ -5,14 +5,14 @@ Plex implementation in Scala
 
 This is a little plex movies client that fetches your movies and present them in a isomorphic way. Also it is my first Scala project!
 
-![image](https://www.dropbox.com/s/8p5yhzivqx4wxui/Schermafdruk%202015-04-17%2022.50.46.png?dl=1)
+![Homepage](https://www.dropbox.com/s/rkt4c0t2vmhrlzb/Schermafdruk%202015-04-19%2020.34.13.png?dl=1)
 
-![Big Hero Six](https://www.dropbox.com/s/7nlef0ja00587j3/Schermafdruk%202015-04-18%2019.53.23.png?dl=1)
+![Big Hero 6](https://www.dropbox.com/s/z5tkqpbd8871x5q/Schermafdruk%202015-04-19%2020.33.45.png?dl=1)
 ====
 
 Still Todo:
 -----------
 - [ ] Take the plex interfacing apart from the Play code
-- [ ] Login
-- [ ] Token preserving
+- [x] Login
+- [x] Token preserving
 - [ ] Remote server redirecting via PlexApp

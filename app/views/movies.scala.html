@@ -8,7 +8,7 @@
     @watching.map { movie =>
         <div class="video-thumb">
             <a href="@movie.detailUrl.toString()">
-                <img src="@movie.thumbUrl(token)" width="100px">
+                <img src="@movie.thumbUrl(token)">
                 <p>@movie.title</p>
             </a>
         </div>
@@ -19,7 +19,7 @@
 @movies.map { movie =>
     <div class="video-thumb">
         <a href="@movie.detailUrl.toString()">
-            <img src="@movie.thumbUrl(token)" width="100px">
+            <img src="@movie.thumbUrl(token)">
             <p>@movie.title</p>
         </a>
     </div>

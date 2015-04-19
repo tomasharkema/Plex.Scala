@@ -1,7 +1,13 @@
+@font-face {
+    font-family: "aktiv";
+    src: url('/assets/fonts/aktiv.otf');
+}
+
 body {
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #eee;
+    font-family: "aktiv";
 }
 
 .form-signin {
@@ -67,11 +73,12 @@ a, a:hover {
 }
 
 .viewer {
+    margin-top: 30px;
 }
 
 .viewer video {
     width: 100%;
-    /*box-shadow: 0 0 100px 0 black;*/
+    background: black;
 }
 
 .info {
@@ -91,13 +98,14 @@ a, a:hover {
 .video-thumb {
     float: left;
     margin:5px;
-    width: 100px;
-    height: 200px;
+    width: 150px;
+    min-height: 270px;
 }
 
 .video-thumb img {
     padding-bottom: 10px;
     min-height: 150px;
+    width: 100%;
 }
 
 .watching {
