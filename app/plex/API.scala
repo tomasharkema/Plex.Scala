@@ -12,8 +12,8 @@ import scalaj.http.{HttpRequest, HttpResponse, Http}
  * Created by tomas on 12-04-15.
  */
 object API {
-  private def host = "192.168.0.100"
-  //private def host = "local.tomasharkema.nl"
+  //private def host = "192.168.0.100"
+  private def host = "local.tomasharkema.nl"
   private def port = 32400
 
   def endpoint = Uri.parse(new URL("http", host, port, "").toString)

@@ -15,7 +15,6 @@ object SubtitlesUtils {
 
     val res = parseString(file)
       .map { frag =>
-        println(frag)
         val f = frag.splitAt(1)._2
         // replace , with .
         f(0) = f(0).replace(",", ".")
