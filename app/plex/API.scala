@@ -4,6 +4,9 @@ import java.net.{URLEncoder, URL}
 
 import com.netaporter.uri.Uri
 import model._
+import play.api.libs.ws.WS
+import play.api.mvc.Results
+import scala.concurrent.{ExecutionContext, Future}
 import scala.xml._
 import com.netaporter.uri.dsl._
 import scalaj.http.{HttpRequest, HttpResponse, Http}
@@ -27,79 +30,58 @@ object API {
       ("height" -> 400) &
       ("minSize" -> 1)
 
-  private def plexRequest(path: String) = Http(path)
-    .header("X-Plex-Client-Identifier", "f4x08gwxi3a6ecdi")
-    .header("X-Plex-Device", "OSX")
-    .header("X-Plex-Device-Name", "Plex Web (Chrome)")
-    .header("X-Plex-Platform", "Chrome")
-    .header("X-Plex-Platform-Version", "41.0")
-    .header("X-Plex-Product", "Plex Web")
-    .header("X-Plex-Version", "2.3.24")
-
-  private def httpRequest(path: Uri, token: String) = plexRequest(endpoint + path)
-      .header("X-Plex-Token", token)
-
-  private def parse(res: HttpResponse[String]) = XML.loadString(res.body)
-
-  private def authenticate(path: String, cl: (String) => (HttpRequest)) = {
-    // TODO: n.encode64(n.toUtf8(a.username + ":" + a.password));
-    val req = plexRequest("https://plex.tv/users/sign_in.xml")
-      .method("POST")
-      .header("Authorization", "Basic " + "")
-      .asString
-
-    val xml = parse(req)
-    //token = (xml \ "authentication-token").text
-
-    cl(path)
+  private def plexRequest(path: String)(implicit ec: ExecutionContext) = {
+    import play.api.Play.current
+    WS.url(path)
+      .withHeaders(
+        "X-Plex-Client-Identifier" -> "f4x08gwxi3a6ecdi",
+        "X-Plex-Device" -> "OSX",
+        "X-Plex-Device-Name" -> "Plex Web (Chrome)",
+        "X-Plex-Platform" -> "Chrome",
+        "X-Plex-Platform-Version" -> "41.0",
+        "X-Plex-Product" -> "Plex Web",
+        "X-Plex-Version" -> "2.3.24")
   }
 
-  def authentication(bearer:String): Option[String] = {
-    val req = plexRequest("https://plex.tv/users/sign_in.xml")
-      .method("POST")
-      .header("Authorization", "Basic " + bearer)
-      .asString
-    def token = (parse(req) \ "authentication-token").text
-    if (token == null || token.length == 0)
-      None
-    else
-      Some(token)
-  }
+  private def httpRequest(path: Uri, token: String)(implicit ec: ExecutionContext) = plexRequest(endpoint + path)
+      .withHeaders("X-Plex-Token" -> token)
 
-  def request[T](path: String, token:String, requestClosure: (HttpRequest) => (HttpRequest), as:(HttpRequest) => (HttpResponse[T])): HttpResponse[T] = {
-    val req = (path: String) => requestClosure(httpRequest(path, token))
-
-    val res = as(req(path))
-
-    if (res.is2xx) {
-      res
-    } else if (res.is4xx) {
-      as(authenticate(path, req))
-    } else {
-      // handle other than 2xx error
-      res
+  def authentication(bearer:String): Future[Option[String]] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    plexRequest("https://plex.tv/users/sign_in.xml")
+      .withHeaders("Authorization" -> ("Basic " + bearer))
+      .post(Results.EmptyContent()).map { response =>
+      def token = (response.xml \ "authentication-token").text
+      if (token == null || token.length == 0)
+        None
+      else
+        Some(token)
     }
   }
 
-  def request(path: String, token:String) = request[String](path, token, _.copy(), _.asString)
+  def defaultAuthenticated(path: String, token:String)(implicit ec: ExecutionContext) = httpRequest(path, token)
 
-  def defaultAuthenticated(path: String, token:String) = httpRequest(path, token)
-
-  def getUser(token: String): Option[User] = {
-    val xml = parse(plexRequest("https://plex.tv/users/account").header("X-Plex-Token", token).asString)
-    val user = xml \\ "user"
-    user.map(User.parseUser).headOption
+  def getUser(token: String): Future[Option[User]] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    plexRequest("https://plex.tv/users/sign_in.xml").get().map { response =>
+      val user = response.xml \\ "user"
+      user.map(User.parseUser).headOption
+    }
   }
 
-  def getMovies(token: String): Seq[Movie] = {
-    val xml = parse(request("library/sections/1/all", token, _.header("a", "b"), _.asString))
-    val movies = xml \\ "Video"
-    movies.map(Movie.parseNode)
+  def getMovies(token: String): Future[Seq[Movie]] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    httpRequest("library/sections/1/all", token).get().map { response =>
+      val movies = response.xml \\ "Video"
+      movies.map(Movie.parseNode)
+    }
   }
 
-  def getMovie(movieId: String, token: String): Option[Movie] = {
-    val xml = request("library" / "metadata" / movieId & ("checkFiles" -> "1"), token)
-    val movie = parse(xml) \ "Video"
-    movie.map(Movie.parseNode).headOption
+  def getMovie(movieId: String, token: String): Future[Option[Movie]] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    httpRequest("library" / "metadata" / movieId & ("checkFiles" -> "1"), token).get().map { response =>
+      val movie = response.xml \ "Video"
+      movie.map(Movie.parseNode).headOption
+    }
   }
 }

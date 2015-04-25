@@ -40,16 +40,24 @@ trait Secured {
    * This method shows how you could wrap the withAuth method to also fetch your user
    * You will need to implement UserDAO.findOneByUsername
    */
-  def withUser(f: (User, String) => Request[AnyContent] => Result) = withAuth { token => implicit request =>
-    API.getUser(token).map { user =>
-      f(user, token)(request)
-    }.getOrElse(onUnauthorized(request))
-  }
+
+//  def withUserFuture(f: (User, String) => Request[AnyContent] => Future[Result]) = withAuthFuture { token => implicit request =>
+//    import scala.concurrent.ExecutionContext.Implicits.global
+//    API.getUser(token).map { u =>
+//      u.map { user =>
+//        //f(user, token)(request)
+//        Action.async(request => f(user)(request))
+//      }.getOrElse(onUnauthorized(request))
+//    }
+//  }
 
   def withUserFuture(f: (User, String) => Request[AnyContent] => Future[Result]) = withAuthFuture { token => implicit request =>
-    API.getUser(token).map { user =>
-      f(user, token)(request)
-    }.getOrElse(onUnauthorizedFuture(request))
+    import scala.concurrent.ExecutionContext.Implicits.global
+    API.getUser(token).map {
+      case Some(user) => f(user, token)(request)
+      case None =>
+        import scala.concurrent.ExecutionContext.Implicits.global
+        Future.apply(onUnauthorized(request))
+    }.mapTo
   }
-
 }

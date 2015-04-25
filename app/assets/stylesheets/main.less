@@ -1,0 +1,130 @@
+@font-face {
+  font-family: "aktiv";
+  src: url('/assets/fonts/aktiv.otf');
+}
+
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #eee;
+  font-family: "aktiv";
+}
+
+html, body {
+  background-color: rgba(0,0,0,0);
+  color:white;
+}
+
+a, a:hover, a:active {
+  color: white;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.backdrop {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  background: black;
+}
+
+.backdrop div {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.5;
+}
+
+.viewer {
+  margin-top: 30px;
+}
+
+.viewer video {
+  width: 100%;
+  background: black;
+}
+
+.info {
+  /*background-color: rgba(0,0,0,0.4);*/
+  padding-top: 100px;
+  min-height: 300px;
+}
+
+.info img.thumb {
+  width: 200px;
+}
+
+.info p.description {
+  font-size: 22px;
+}
+
+.video-thumb {
+  float: left;
+  margin:5px;
+  width: 150px;
+  height: 300px;
+}
+
+.video-thumb img {
+  min-height: 150px;
+  width: 100%;
+}
+
+.watching {
+  margin-bottom: 100px;
+  background-color: #333;
+}
+
+.clear {
+  clear:both;
+}
+
+.p_progress {
+  background: black;
+  width: 100%;
+  height: 5px;
+  margin-bottom: 10px;
+}
+
+.p_progress .p_progress-indicator {
+  background-color: #cc7b19;
+  position: relative;
+  height: 100%;
+}

@@ -1,4 +1,4 @@
-@(watching: Seq[plex.Movie] = Seq[plex.Movie](), movies: Seq[plex.Movie], token: String)
+@(watching: Seq[plex.Movie] = Seq[plex.Movie](), movies: Seq[plex.Movie], token: String)(implicit req: RequestHeader)
 
 @main("Movies") {
 

@@ -1,4 +1,4 @@
-@(movie: plex.Movie, offset: Option[Double], token: String)
+@(movie: plex.Movie, offset: Option[Double], token: String)(implicit req: RequestHeader)
 
 @main(movie.title, backdrop = movie.artUrl(token).toString()) {
 
