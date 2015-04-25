@@ -11,7 +11,7 @@ object SubtitlesUtils {
     frag.split("\r\n")
   }
 
-  def convertSRTToVVT(file: String): String = {
+  def convertSRTtoVVT(file: String): String = {
 
     val res = parseString(file)
       .map { frag =>

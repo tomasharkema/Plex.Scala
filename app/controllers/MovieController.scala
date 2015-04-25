@@ -88,7 +88,7 @@ object MovieController extends Controller with Secured with MongoController {
       case Some(movie) =>
         import play.api.Play.current
         WS.url(movie.subtitles.find(_.languageCode == lang).head.url(token).toString()).get().map { res =>
-          Ok(SubtitlesUtils.convertSRTToVVT(res.body))
+          Ok(SubtitlesUtils.convertSRTtoVVT(res.body))
         }
       case None => Future.apply(NotFound)
     }

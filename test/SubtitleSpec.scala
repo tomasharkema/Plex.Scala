@@ -18,7 +18,7 @@ class SubtitleSpec extends Specification {
     }
 
     "convert SRT to VTT" in {
-      val converter = utils.SubtitlesUtils.convertSRTToVVT(testSrt.mkString)
+      val converter = utils.SubtitlesUtils.convertSRTtoVVT(testSrt.mkString)
       converter must startWith("WEBVTT")
     }
 

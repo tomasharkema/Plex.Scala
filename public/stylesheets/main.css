@@ -109,6 +109,7 @@ a, a:hover, a:active {
 
 .watching {
     margin-bottom: 100px;
+    background-color: #333;
 }
 
 .clear {
