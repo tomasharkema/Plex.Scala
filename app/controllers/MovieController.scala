@@ -40,30 +40,12 @@ object MovieController extends Controller with Secured with MongoController {
   }
 
   def index = withUserFuture { (user, token) => implicit request =>
-    API.getMovies(token).flatMap { movies =>
+    API.getMovies(token).map { movies =>
       getWatchingMovies(movies, user).map { watching =>
         Ok(views.html.movies(watching, movies, token))
       }
-    }
+    }.flatMap(r => r)
   }
-
-//  def movie(movieId: String) = withUserFuture { (user, token) => implicit request =>
-//    API.getMovie(movieId, token) match {
-//      case Some(movie) =>
-//        val findOffset = collection.find(Json.obj(
-//          "uid" -> user.uid,
-//          "movieId" -> movieId
-//        )).one[JsObject]
-//
-//        findOffset.map { opt =>
-//          val offset = opt.map { obj =>
-//            (obj \ "offset").toString().toDouble
-//          }
-//          Ok(views.html.movie(movie, offset, token))
-//        }
-//      case None => Future.apply(NotFound)
-//    }
-//  }
 
   def movie(movieId: String) = withUserFuture { (user, token) => implicit request =>
     API.getMovie(movieId, token).map {
@@ -80,7 +62,7 @@ object MovieController extends Controller with Secured with MongoController {
           Ok(views.html.movie(movie, offset, token))
         }
       case None => Future.apply(NotFound)
-    }.mapTo
+    }.flatMap(r => r)
   }
 
   def watch(movieId: String, state: String, offset: Double) = withUserFuture { (user, token) => implicit request =>
@@ -120,6 +102,6 @@ object MovieController extends Controller with Secured with MongoController {
         }
       }
       case None => Future.apply(NotFound)
-    }.mapTo
+    }.flatMap(r => r)
   }
 }

@@ -1,5 +1,9 @@
 package security
 
+import java.lang.Exception
+
+import akka.actor.Status._
+import akka.dispatch.sysmsg.Failed
 import model.{User, Auth}
 import play._
 import play.api._
@@ -53,11 +57,12 @@ trait Secured {
 
   def withUserFuture(f: (User, String) => Request[AnyContent] => Future[Result]) = withAuthFuture { token => implicit request =>
     import scala.concurrent.ExecutionContext.Implicits.global
-    API.getUser(token).map {
+    val getUser = API.getUser(token).map {
       case Some(user) => f(user, token)(request)
-      case None =>
-        import scala.concurrent.ExecutionContext.Implicits.global
-        Future.apply(onUnauthorized(request))
-    }.mapTo
+      case None => Future.apply(onUnauthorized(request))
+    }
+    getUser.flatMap { s =>
+      s
+    }
   }
 }

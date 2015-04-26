@@ -15,8 +15,8 @@ import scalaj.http.{HttpRequest, HttpResponse, Http}
  * Created by tomas on 12-04-15.
  */
 object API {
-  //private def host = "192.168.0.100"
-  private def host = "local.tomasharkema.nl"
+  private def host = "192.168.0.100"
+  //private def host = "local.tomasharkema.nl"
   private def port = 32400
 
   def endpoint = Uri.parse(new URL("http", host, port, "").toString)
@@ -52,10 +52,11 @@ object API {
       .withHeaders("Authorization" -> ("Basic " + bearer))
       .post(Results.EmptyContent()).map { response =>
       def token = (response.xml \ "authentication-token").text
-      if (token == null || token.length == 0)
+      if (token == null || token.length == 0) {
         None
-      else
+      } else {
         Some(token)
+      }
     }
   }
 
@@ -63,7 +64,7 @@ object API {
 
   def getUser(token: String): Future[Option[User]] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    plexRequest("https://plex.tv/users/sign_in.xml").get().map { response =>
+    plexRequest("https://plex.tv/users/account").withHeaders("X-Plex-Token" -> token).get().map { response =>
       val user = response.xml \\ "user"
       user.map(User.parseUser).headOption
     }
