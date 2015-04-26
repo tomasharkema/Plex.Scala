@@ -30,36 +30,25 @@ project/plugins/project/
 
 .sbtserver
 
-*.iml
 *.lock
 *.komodoproject
 .DS_Store
-.history
-.idea
 .classpath
-.cache
 .project/
 .project
-.idea/
 .idea_modules/
 .settings/
 .target/
 RUNNING_PID
-project/boot/
 workspace/
 repository/
 monitoring/
 target/
 logs/
 .settings
-.classpath
-.project
-.cache
 bin/
 project/activator-sbt-eclipse-shim.sbt
 project/activator-sbt-idea-shim.sbt
-.sbtserver
 project/.sbtserver
-build.sbt
 project/sbt-ui.sbt
 project/play-fork-run.sbt
