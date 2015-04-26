@@ -52,3 +52,5 @@ project/activator-sbt-idea-shim.sbt
 project/.sbtserver
 project/sbt-ui.sbt
 project/play-fork-run.sbt
+
+inspect.sbt
