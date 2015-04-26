@@ -11,9 +11,6 @@ GET         /movie/:movie/:lang/sub.vtt        controllers.MovieController.subti
 
 POST        /watch                             controllers.MovieController.watch(movieId:String, state: String, offset: Double)
 
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                      controllers.Assets.at(path="/public", file)
-
 GET         /proxy                             controllers.Proxy.proxy(url: String)
 
 GET         /login                             controllers.Login.login
@@ -21,3 +18,7 @@ GET         /logout                            controllers.Login.logout
 POST        /authenticate                      controllers.Login.authenticate
 
 GET         /ws                                controllers.MovieController.socket
+
+GET         /assets/*file                      controllers.Assets.at(path="/public", file)
+GET         /webjars/*file                     controllers.WebJarAssets.at(file)
+GET         /webjars/*file                     controllers.WebJarAssets.at(file)
