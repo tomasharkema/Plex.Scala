@@ -49,8 +49,10 @@ object API {
   def endpoint: Uri = endpoint(host)
 
   def clientEndpoint(clientIp: String) = {
-    if (remote_host == clientIp || clientIp == "0:0:0:0:0:0:0:1") {
+    if (remote_host == clientIp) {
       endpoint(local_host)
+    } else if (clientIp == "0:0:0:0:0:0:0:1") {
+      endpoint(host)
     } else {
       endpoint(remote_host)
     }
@@ -96,10 +98,13 @@ object API {
   def defaultAuthenticated(path: String, token:String)(implicit ec: ExecutionContext) = httpRequest(path, token)
 
   def getUser(token: String): Future[Option[User]] = {
-    plexRequest("https://plex.tv/users/account").withHeaders("X-Plex-Token" -> token).get().map { response =>
-      val user = response.xml \\ "user"
-      user.map(User.parseUser).headOption
-    }
+    plexRequest("https://plex.tv/users/account")
+      .withHeaders("X-Plex-Token" -> token)
+      .get()
+      .map { response =>
+        val user = response.xml \\ "user"
+        user.map(User.parseUser).headOption
+      }
   }
 
   def getMovies(token: String): Future[Seq[Movie]] = {
@@ -110,6 +115,7 @@ object API {
   }
 
   def getMovie(movieId: String, token: String): Future[Option[Movie]] = {
+    println(movieId, token)
     httpRequest("library" / "metadata" / movieId & ("checkFiles" -> "1"), token).get().map { response =>
       val movie = response.xml \ "Video"
       movie.map(Movie.parseNode).headOption

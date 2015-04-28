@@ -24,7 +24,6 @@ object LoginUtil extends RouteInvokers with Writeables {
   }
 
   def request(a:String, b:String) = FakeRequest(a, b).withSession((Security.username, token))
-
 }
 
 abstract class WithAppLogin extends WithApplication {
