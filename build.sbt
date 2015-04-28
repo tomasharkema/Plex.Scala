@@ -25,3 +25,5 @@ libraryDependencies += "org.webjars" % "underscorejs" % "1.8.3"
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
 
 fork in run := true
+
+includeFilter in (Assets, LessKeys.less) := "*.less"
