@@ -1,6 +1,6 @@
 $ ->
 
-  ws = $.websocket(jsRoutes.controllers.MovieController.socket().webSocketURL())
+  #ws = $.websocket(jsRoutes.controllers.MovieController.socket().webSocketURL())
 
   video = $('video')[0]
   if video != undefined
