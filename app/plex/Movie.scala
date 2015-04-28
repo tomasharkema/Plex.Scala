@@ -37,7 +37,7 @@ case class Movie(title: String,
 
   def watchingProgress(offsetOverride: Option[Double] = None): Option[Float] = off(offsetOverride).map(o => o.toFloat / duration.toFloat)
 
-  def stream(token: String, offsetOverride: Option[Double] = None) = (API.endpoint + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
+  def stream(token: String, clientIp: String, offsetOverride: Option[Double] = None) = (API.clientEndpoint(clientIp) + media.head.parts.head.url & ("X-Plex-Token" -> token)) +
     watchingOffset(offsetOverride).map(o => "#t="+o).getOrElse("")
 
   def subtitles = media.head.subtitles

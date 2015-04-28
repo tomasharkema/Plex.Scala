@@ -24,24 +24,37 @@ object API {
   var _host = ""
   private def host = {
     if (_host == "") {
-      WS.url("https://plex.tv/pms/:/ip").get().map { res =>
-        val hostRes = res.body
-        if (hostRes.contains(remote_host)) {
-          println("Host has same remote ip, choosing for: "+ local_host)
-          _host = local_host
-        } else {
-          println("Host has foreign remote ip, choosing for: "+ remote_host)
-          _host = remote_host
-        }
-        _host
-      }
+      Await.result(
+        WS.url("https://plex.tv/pms/:/ip").get()
+          .map { res =>
+            val hostRes = res.body
+            if (hostRes.contains(remote_host)) {
+              println("Host has same remote ip, choosing for: "+ local_host)
+              _host = local_host
+            } else {
+              println("Host has foreign remote ip, choosing for: "+ remote_host)
+              _host = remote_host
+            }
+            _host
+        },
+        Duration(10, "seconds")
+      )
     } else {
-      Future.apply(_host)
+      _host
     }
-
   }
 
-  def endpoint = Uri.parse(new URL("http", Await.result(host, Duration(10, "seconds")), port, "").toString)
+  def endpoint(h: String): Uri = Uri.parse(new URL("http", h, port, "").toString)
+
+  def endpoint: Uri = endpoint(host)
+
+  def clientEndpoint(clientIp: String) = {
+    if (remote_host == clientIp || clientIp == "0:0:0:0:0:0:0:1") {
+      endpoint(local_host)
+    } else {
+      endpoint(remote_host)
+    }
+  }
 
   def proxy(path: Uri) = "/proxy" ? ("url" -> URLEncoder.encode(path toString(), "UTF-8"))
 
@@ -52,24 +65,21 @@ object API {
       ("height" -> 400) &
       ("minSize" -> 1)
 
-  private def plexRequest(path: String)(implicit ec: ExecutionContext) = {
-    import play.api.Play.current
-    WS.url(path)
-      .withHeaders(
-        "X-Plex-Client-Identifier" -> "f4x08gwxi3a6ecdi",
-        "X-Plex-Device" -> "OSX",
-        "X-Plex-Device-Name" -> "Plex Web (Chrome)",
-        "X-Plex-Platform" -> "Chrome",
-        "X-Plex-Platform-Version" -> "41.0",
-        "X-Plex-Product" -> "Plex Web",
-        "X-Plex-Version" -> "2.3.24")
-  }
+  private def plexRequest(path: String)(implicit ec: ExecutionContext) = WS.url(path)
+    .withHeaders(
+      "X-Plex-Client-Identifier" -> "f4x08gwxi3a6ecdi",
+      "X-Plex-Device" -> "OSX",
+      "X-Plex-Device-Name" -> "Plex Web (Chrome)",
+      "X-Plex-Platform" -> "Chrome",
+      "X-Plex-Platform-Version" -> "41.0",
+      "X-Plex-Product" -> "Plex Web",
+      "X-Plex-Version" -> "2.3.24")
+
 
   private def httpRequest(path: Uri, token: String)(implicit ec: ExecutionContext) = plexRequest(endpoint + path)
       .withHeaders("X-Plex-Token" -> token)
 
   def authentication(bearer:String): Future[Option[String]] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
     plexRequest("https://plex.tv/users/sign_in.xml")
       .withHeaders("Authorization" -> ("Basic " + bearer))
       .post(Results.EmptyContent())
@@ -86,7 +96,6 @@ object API {
   def defaultAuthenticated(path: String, token:String)(implicit ec: ExecutionContext) = httpRequest(path, token)
 
   def getUser(token: String): Future[Option[User]] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
     plexRequest("https://plex.tv/users/account").withHeaders("X-Plex-Token" -> token).get().map { response =>
       val user = response.xml \\ "user"
       user.map(User.parseUser).headOption
@@ -94,7 +103,6 @@ object API {
   }
 
   def getMovies(token: String): Future[Seq[Movie]] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
     httpRequest("library/sections/1/all", token).get().map { response =>
       val movies = response.xml \\ "Video"
       movies.map(Movie.parseNode)
@@ -102,7 +110,6 @@ object API {
   }
 
   def getMovie(movieId: String, token: String): Future[Option[Movie]] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
     httpRequest("library" / "metadata" / movieId & ("checkFiles" -> "1"), token).get().map { response =>
       val movie = response.xml \ "Video"
       movie.map(Movie.parseNode).headOption
