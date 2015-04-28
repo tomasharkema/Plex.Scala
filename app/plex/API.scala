@@ -6,19 +6,42 @@ import com.netaporter.uri.Uri
 import model._
 import play.api.libs.ws.WS
 import play.api.mvc.Results
-import scala.concurrent.{ExecutionContext, Future}
-import scala.xml._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import com.netaporter.uri.dsl._
+
+import play.api.Play.current
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by tomas on 12-04-15.
  */
 object API {
-  //private def host = "192.168.0.100"
-  private def host = "local.tomasharkema.nl"
+  private def local_host = "192.168.0.100"
+  private def remote_host = "89.99.237.125"
   private def port = 32400
 
-  def endpoint = Uri.parse(new URL("http", host, port, "").toString)
+  var _host = ""
+  private def host = {
+    if (_host == "") {
+      WS.url("https://plex.tv/pms/:/ip").get().map { res =>
+        val hostRes = res.body
+        if (hostRes.contains(remote_host)) {
+          println("Host has same remote ip, choosing for: "+ local_host)
+          _host = local_host
+        } else {
+          println("Host has foreign remote ip, choosing for: "+ remote_host)
+          _host = remote_host
+        }
+        _host
+      }
+    } else {
+      Future.apply(_host)
+    }
+
+  }
+
+  def endpoint = Uri.parse(new URL("http", Await.result(host, Duration(10, "seconds")), port, "").toString)
 
   def proxy(path: Uri) = "/proxy" ? ("url" -> URLEncoder.encode(path toString(), "UTF-8"))
 
@@ -49,14 +72,15 @@ object API {
     import scala.concurrent.ExecutionContext.Implicits.global
     plexRequest("https://plex.tv/users/sign_in.xml")
       .withHeaders("Authorization" -> ("Basic " + bearer))
-      .post(Results.EmptyContent()).map { response =>
-      def token = (response.xml \ "authentication-token").text
-      if (token == null || token.length == 0) {
-        None
-      } else {
-        Some(token)
+      .post(Results.EmptyContent())
+      .map { response =>
+        def token = (response.xml \ "authentication-token").text
+        if (token == null || token.length == 0) {
+          None
+        } else {
+          Some(token)
+        }
       }
-    }
   }
 
   def defaultAuthenticated(path: String, token:String)(implicit ec: ExecutionContext) = httpRequest(path, token)
