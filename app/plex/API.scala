@@ -9,7 +9,6 @@ import play.api.mvc.Results
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml._
 import com.netaporter.uri.dsl._
-import scalaj.http.{HttpRequest, HttpResponse, Http}
 
 /**
  * Created by tomas on 12-04-15.
