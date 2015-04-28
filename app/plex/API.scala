@@ -9,7 +9,7 @@ import play.api.mvc.Results
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import com.netaporter.uri.dsl._
-
+import play.api.Logger
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -29,10 +29,10 @@ object API {
           .map { res =>
             val hostRes = res.body
             if (hostRes.contains(remote_host)) {
-              println("Host has same remote ip, choosing for: "+ local_host)
+              Logger.debug("Host has same remote ip, choosing for: "+ local_host)
               _host = local_host
             } else {
-              println("Host has foreign remote ip, choosing for: "+ remote_host)
+              Logger.debug("Host has foreign remote ip, choosing for: "+ remote_host)
               _host = remote_host
             }
             _host
@@ -108,14 +108,13 @@ object API {
   }
 
   def getMovies(token: String): Future[Seq[Movie]] = {
-    httpRequest("library/sections/1/all", token).get().map { response =>
+    httpRequest("library" / "sections" / "1" / "all", token).get().map { response =>
       val movies = response.xml \\ "Video"
       movies.map(Movie.parseNode)
     }
   }
 
   def getMovie(movieId: String, token: String): Future[Option[Movie]] = {
-    println(movieId, token)
     httpRequest("library" / "metadata" / movieId & ("checkFiles" -> "1"), token).get().map { response =>
       val movie = response.xml \ "Video"
       movie.map(Movie.parseNode).headOption
