@@ -21,4 +21,5 @@ GET         /ws                                controllers.MovieController.socke
 
 GET         /assets/*file                      controllers.Assets.at(path="/public", file)
 GET         /webjars/*file                     controllers.WebJarAssets.at(file)
-GET         /webjars/*file                     controllers.WebJarAssets.at(file)
+
+GET         /search/movie                      controllers.SearchController.movie(q: String)

@@ -2,6 +2,10 @@
 
 @main("Movies") {
 
+    <input type="search" id="search" placeholder="Zoeken...">
+
+    <div id="search-result"></div>
+
     <h1>Movies</h1>
 
     <div class="watching">
@@ -17,13 +21,15 @@
         <div class="clear"></div>
     </div>
 
-@movies.map { movie =>
-    <div class="video-thumb">
-        <a href="@movie.detailUrl.toString()">
-            <img src="@movie.thumbUrl(token)">
-            <p>@movie.title</p>
-        </a>
+    <div class="movies">
+    @movies.map { movie =>
+        <div class="video-thumb">
+            <a href="@movie.detailUrl.toString()">
+                <img src="@movie.thumbUrl(token)">
+                <p>@movie.title</p>
+            </a>
+        </div>
+    }
     </div>
-}
 
 }

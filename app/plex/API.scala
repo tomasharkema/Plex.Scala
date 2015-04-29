@@ -4,6 +4,7 @@ import java.net.{URLEncoder, URL}
 
 import com.netaporter.uri.Uri
 import model._
+import play.api.cache.Cache
 import play.api.libs.ws.WS
 import play.api.mvc.Results
 import scala.concurrent.duration.Duration
@@ -82,23 +83,19 @@ object API {
       .withHeaders("X-Plex-Token" -> token)
 
   def authentication(bearer:String): Future[Option[String]] = {
-    plexRequest("https://plex.tv/users/sign_in.xml")
+    plexRequest("https://plex.tv" / "users" / "sign_in.xml")
       .withHeaders("Authorization" -> ("Basic " + bearer))
       .post(Results.EmptyContent())
       .map { response =>
         def token = (response.xml \ "authentication-token").text
-        if (token == null || token.length == 0) {
-          None
-        } else {
-          Some(token)
-        }
+        if (token == null || token.length == 0) None else Some(token)
       }
   }
 
   def defaultAuthenticated(path: String, token:String)(implicit ec: ExecutionContext) = httpRequest(path, token)
 
   def getUser(token: String): Future[Option[User]] = {
-    plexRequest("https://plex.tv/users/account")
+    plexRequest("https://plex.tv" / "users" / "account")
       .withHeaders("X-Plex-Token" -> token)
       .get()
       .map { response =>
@@ -107,11 +104,20 @@ object API {
       }
   }
 
-  def getMovies(token: String): Future[Seq[Movie]] = {
-    httpRequest("library" / "sections" / "1" / "all", token).get().map { response =>
-      val movies = response.xml \\ "Video"
-      movies.map(Movie.parseNode)
-    }
+  def getMovies(token: String, query:Option[String] = None): Future[Seq[Movie]] = {
+    Future.apply(Cache.getOrElse[Seq[Movie]](token) {
+      val movies = Await.result(httpRequest("library" / "sections" / "1" / "all", token).get().map { response =>
+        val movies = response.xml \\ "Video"
+        movies.map(Movie.parseNode)
+      }, Duration(10, "seconds"))
+      Cache.set("item.key", movies)
+      movies
+    }.filter { o =>
+      query match {
+        case Some(q) => o.title.toLowerCase.contains(q.toLowerCase)
+        case None => true
+      }
+    })
   }
 
   def getMovie(movieId: String, token: String): Future[Option[Movie]] = {

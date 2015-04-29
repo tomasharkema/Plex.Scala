@@ -1,7 +1,10 @@
 package plex
 
-import play.modules.reactivemongo.json.collection.JSONCollection
+import play.api.libs.json.{JsString, JsObject}
 import reactivemongo.api.{MongoConnection, MongoDriver}
+
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 import scala.xml._
 import com.netaporter.uri.dsl._
@@ -68,6 +71,16 @@ object Movie {
       (el \ "@summary").text,
       (el \ "@duration").text.toInt/1000,
       (el \ "@viewOffset").text.toIntOpt.map(_/1000)
+    )
+  }
+
+  implicit val movieWrites = new Writes[Movie] {
+    def writes(movie: Movie) = Json.obj(
+      "title" -> movie.title,
+      "summary" -> movie.description,
+      "art" -> movie.art,
+      "thumb" -> movie.thumb,
+      "duration" -> movie.duration
     )
   }
 }
